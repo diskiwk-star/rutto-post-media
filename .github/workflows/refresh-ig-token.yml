@@ -1,0 +1,84 @@
+name: refresh-ig-token (Instagramトークンの自動延長)
+
+# 投稿枠（01:43〜03:43 UTC / 09:13〜11:13 UTC）を避けて、月2回延長する
+on:
+  schedule:
+    - cron: '17 5 1,15 * *'   # 05:17 UTC = 14:17 JST
+  workflow_dispatch:
+    inputs:
+      check_only:
+        description: 'PATの権限確認だけ行い、トークンは延長しない'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: refresh-ig-token
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Refresh token and update secret
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          CHECK_ONLY: ${{ inputs.check_only == true && '1' || '' }}
+        run: |
+          python3 - <<'PY'
+          import json, os, subprocess, sys, urllib.request, urllib.parse, urllib.error
+
+          if not os.environ.get("GH_TOKEN"):
+              print("::notice::GH_PAT が未登録のため何もしません")
+              sys.exit(0)
+
+          repo = os.environ["GITHUB_REPOSITORY"]
+          env = "IG_ACCESS_TOKEN"
+
+          if os.environ.get("CHECK_ONLY") == "1":
+              r = subprocess.run(["gh", "secret", "list", "--repo", repo],
+                                 capture_output=True, text=True)
+              names = [ln.split()[0] for ln in r.stdout.splitlines() if ln.strip()]
+              print("PATで見える Secret:", names)
+              ok = r.returncode == 0 and env in names
+              print("権限確認:", "OK" if ok else "NG")
+              sys.exit(0 if ok else 1)
+
+          def call(url):
+              with urllib.request.urlopen(url, timeout=30) as resp:
+                  return json.load(resp)
+
+          old = os.environ.get(env, "")
+          if not old:
+              print(f"::error::Secret {env} が空です")
+              sys.exit(1)
+          try:
+              d = call("https://graph.instagram.com/refresh_access_token?" + urllib.parse.urlencode(
+                  {"grant_type": "ig_refresh_token", "access_token": old}))
+              new = d["access_token"]
+              print(f"::add-mask::{new}")
+              days = round(d.get("expires_in", 0) / 86400, 1)
+              me = call("https://graph.instagram.com/v23.0/me?" + urllib.parse.urlencode(
+                  {"fields": "username", "access_token": new}))
+              if not me.get("username"):
+                  raise RuntimeError("新しいトークンで /me が引けない")
+          except urllib.error.HTTPError as e:
+              try:
+                  err = json.load(e).get("error", {})
+              except Exception:
+                  err = {}
+              print(f"::error::延長に失敗 http={e.code} code={err.get('code')} msg={err.get('message')}")
+              sys.exit(1)
+          except Exception as e:
+              print(f"::error::延長に失敗 {type(e).__name__}: {e}")
+              sys.exit(1)
+          r = subprocess.run(["gh", "secret", "set", env, "--repo", repo],
+                             input=new, capture_output=True, text=True)
+          if r.returncode != 0:
+              print("::error::Secret の書き込みに失敗 (PATの権限を確認)")
+              sys.exit(1)
+          print(f"延長してSecretを更新しました（@{me['username']}・有効 {days} 日）")
+          PY
