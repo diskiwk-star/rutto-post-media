@@ -4,7 +4,9 @@
 
 環境変数:
   IG_ACCESS_TOKEN : Instagram Login APIのアクセストークン（Actions Secret）
-  IG_USER_ID      : 泊RuttoのIGユーザーID（Actions Variable）
+  IG_USER_ID      : 泊RuttoのIGユーザーID（Actions Variable・任意）。空ならトークンから取得する
+  EXPECTED_USERNAME : 投稿先として想定するIGユーザー名。トークンが別アカウントのものなら投稿しない
+                    （いりこ等のトークンを貼り間違えたときの安全装置）。既定は tomarutto_kagawa
   SLOT            : "daily"（11:30・施設ローテ） or "frequent"（19:00・頻出ページ）
   TARGET_TIME     : 投稿目標時刻（JST "HH:MM"）。既定は daily=11:30 / frequent=19:00
   DRY_RUN         : "1" なら投稿せず、選ばれた素材とAPIリクエストを表示のみ
@@ -42,6 +44,7 @@ MAX_WAIT_SEC = 90 * 60
 
 TOKEN = os.environ.get("IG_ACCESS_TOKEN", "")
 USER_ID = os.environ.get("IG_USER_ID", "")
+EXPECTED_USERNAME = os.environ.get("EXPECTED_USERNAME") or "tomarutto_kagawa"
 SLOT = os.environ.get("SLOT", "daily")
 DRY_RUN = os.environ.get("DRY_RUN", "") == "1"
 TARGET_TIME = os.environ.get("TARGET_TIME") or DEFAULT_TIME.get(SLOT, "11:30")
@@ -129,6 +132,27 @@ def post_story(url: str):
     print(f"  published: {publish(c['id'])}")
 
 
+def check_account():
+    """トークンの持ち主を確認し、USER_IDを確定する。想定と違うアカウントなら中止。"""
+    global USER_ID
+    url = f"{API}/me?" + urllib.parse.urlencode(
+        {"fields": "user_id,username", "access_token": TOKEN})
+    try:
+        with urllib.request.urlopen(url, timeout=60) as r:
+            me = json.loads(r.read())
+    except urllib.error.HTTPError as e:
+        sys.exit(f"ERROR: トークンでアカウント情報を取れません（失効・貼り間違い？）: "
+                 f"{e.code} {e.read().decode(errors='replace')}")
+    username = me.get("username")
+    print(f"トークンのアカウント: @{username} (user_id={me.get('user_id')})")
+    if username != EXPECTED_USERNAME:
+        sys.exit(f"ERROR: 想定は @{EXPECTED_USERNAME} だが、トークンは @{username} のもの。投稿を中止。")
+    if not USER_ID:
+        USER_ID = str(me["user_id"])
+    elif USER_ID != str(me.get("user_id")):
+        sys.exit(f"ERROR: IG_USER_ID({USER_ID}) とトークンのuser_idが一致しません。")
+
+
 def wait_until_target():
     now = datetime.now(JST)
     hh, mm = (int(x) for x in TARGET_TIME.split(":"))
@@ -147,6 +171,8 @@ def wait_until_target():
 def main():
     today = os.environ.get("QUEUE_DATE") or datetime.now(JST).strftime("%Y-%m-%d")
     print(f"date(JST)={today} slot={SLOT} dry_run={DRY_RUN}")
+    if DRY_RUN and TOKEN:
+        check_account()  # ドライランでもトークンの持ち主は確認する（素材が無くても確認できるよう先頭で）
 
     history = load_json(HISTORY, [])
     if any(h["date"] == today and h["slot"] == SLOT for h in history):
@@ -162,8 +188,10 @@ def main():
     print(f"選ばれた素材: p.{page.get('page_no', '?')} {page.get('facility') or '-'} "
           f"「{page.get('title') or ''}」 {page['file']}")
 
-    if not DRY_RUN and (not TOKEN or not USER_ID):
-        sys.exit("ERROR: IG_ACCESS_TOKEN / IG_USER_ID が未設定")
+    if not DRY_RUN:
+        if not TOKEN:
+            sys.exit("ERROR: IG_ACCESS_TOKEN が未設定")
+        check_account()
 
     wait_until_target()
 

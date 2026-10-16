@@ -39,7 +39,9 @@ GitHub ActionsがInstagram Graph API（Instagram Login API）で投稿し、画�
 ## 設定（GitHub）
 
 - Secret `IG_ACCESS_TOKEN`: 泊RuttoのIGアカウントのアクセストークン（約60日で失効。値はユーザーが自分で貼る）
-- Variable `IG_USER_ID`: 泊RuttoのIGユーザーID
+- Variable `IG_USER_ID`: 任意。空ならトークンから自動取得する
+- 投稿前にトークンの持ち主が `@tomarutto_kagawa` か確認し、違えば中止する（いりこ等のトークンの貼り間違い対策）
+- トークンの確認だけしたいときは、Actionsから手動実行（dry_run=ON）。ログに「トークンのアカウント: @tomarutto_kagawa」と出ればOK
 
 ## 制約
 
