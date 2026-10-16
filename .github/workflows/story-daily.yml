@@ -1,0 +1,51 @@
+name: story-daily (11:30 施設ローテ)
+
+on:
+  schedule:
+    # 目標 11:30 JST。Actionsの定時実行は遅れることがあるので早めに起動し、目標時刻まで待つ。
+    # 予備の2本は本命が落ちたとき用。投稿済みなら state/history.json を見て何もせず終わる。
+    - cron: '43 1 * * *'   # 本命
+    - cron: '43 2 * * *'   # 予備1
+    - cron: '43 3 * * *'   # 予備2
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'ドライラン（投稿せず選ばれる素材を表示のみ）'
+        type: boolean
+        default: true
+      target_time:
+        description: '投稿時刻（JST・HH:MM）。空なら既定（11:30）'
+        type: string
+        default: ''
+
+permissions:
+  contents: write
+
+concurrency:
+  # 投稿中の実行を途中で止めないよう、後から来た実行は待たせる（終わってから履歴を見て終了する）
+  group: rutto-story-daily
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Publish story (daily)
+        env:
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          IG_USER_ID: ${{ vars.IG_USER_ID }}
+          SLOT: daily
+          TARGET_TIME: ${{ inputs.target_time }}
+          DRY_RUN: ${{ inputs.dry_run == true && '1' || '' }}
+        run: python3 scripts/publish_story.py
+
+      - name: Commit state
+        if: ${{ inputs.dry_run != true }}
+        run: |
+          git config user.name "rutto-autopost-bot"
+          git config user.email "actions@github.com"
+          git add state/
+          git diff --cached --quiet || (git commit -m "story daily posted $(TZ=Asia/Tokyo date +%F)" && git pull --rebase origin main && git push)
