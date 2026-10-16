@@ -68,8 +68,8 @@ def main():
     if len(sys.argv) != 2:
         sys.exit(__doc__)
     canva = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
-    old = {p["id"]: p for p in json.loads(MANIFEST.read_text(encoding="utf-8")).get("pages", [])} \
-        if MANIFEST.exists() else {}
+    old_manifest = json.loads(MANIFEST.read_text(encoding="utf-8")) if MANIFEST.exists() else {}
+    old = {p["id"]: p for p in old_manifest.get("pages", [])}
 
     pages, unclassified, missing, ambiguous = [], [], [], []
     seen = set()
@@ -99,7 +99,9 @@ def main():
         pages.append({**p, "active": False, "removed_from_canva": True})
 
     MANIFEST.parent.mkdir(parents=True, exist_ok=True)
-    MANIFEST.write_text(json.dumps({"pages": pages}, ensure_ascii=False, indent=2) + "\n",
+    out = {"paused": True} if old_manifest.get("paused") else {}  # 一時停止の設定は引き継ぐ
+    out["pages"] = pages
+    MANIFEST.write_text(json.dumps(out, ensure_ascii=False, indent=2) + "\n",
                         encoding="utf-8")
 
     act = [p for p in pages if p["active"]]

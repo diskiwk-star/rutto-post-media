@@ -7,7 +7,9 @@
   IG_USER_ID      : 泊RuttoのIGユーザーID（Actions Variable・任意）。空ならトークンから取得する
   EXPECTED_USERNAME : 投稿先として想定するIGユーザー名。トークンが別アカウントのものなら投稿しない
                     （いりこ等のトークンを貼り間違えたときの安全装置）。既定は tomarutto_kagawa
-  SLOT            : "daily"（11:30・施設ローテ） or "frequent"（19:00・頻出ページ）
+  SLOT            : "daily"（11:30・施設ローテ） / "frequent"（19:00・頻出ページ）
+                    / "manual"（PAGEで指定したページを即時投稿。ローテは進めない）
+  PAGE            : manual用。ページ番号（例 "6"）またはページID
   TARGET_TIME     : 投稿目標時刻（JST "HH:MM"）。既定は daily=11:30 / frequent=19:00
   DRY_RUN         : "1" なら投稿せず、選ばれた素材とAPIリクエストを表示のみ
   QUEUE_DATE      : 日付の上書き（"YYYY-MM-DD"）。テスト用
@@ -16,6 +18,8 @@
 動作:
   stories/manifest.json（素材一覧）と state/rotation.json（ローテの進み具合）から
   scripts/pick.py で今日の素材を選び、STORIESとして投稿する。
+  stories/overrides.json に {"YYYY-MM-DD": {"frequent": "PBxxx"}} があれば、その日その枠は
+  指定ページを出す（ローテは進めない）。manifestの "paused": true の間は指定分だけ投稿する。
   成功したら state/rotation.json と state/history.json を更新（ワークフロー側でコミット）。
   history に同じ日付・枠があれば投稿済みとして何もしない（二重投稿防止）。
 
@@ -39,11 +43,12 @@ from pick import pick  # noqa: E402
 
 API = "https://graph.instagram.com/v23.0"
 JST = timezone(timedelta(hours=9))
-DEFAULT_TIME = {"daily": "11:30", "frequent": "19:00"}
+DEFAULT_TIME = {"daily": "11:30", "frequent": "19:00", "manual": "00:00"}  # manualは即時
 MAX_WAIT_SEC = 90 * 60
 
 TOKEN = os.environ.get("IG_ACCESS_TOKEN", "")
 USER_ID = os.environ.get("IG_USER_ID", "")
+PAGE = os.environ.get("PAGE", "").strip()
 EXPECTED_USERNAME = os.environ.get("EXPECTED_USERNAME") or "tomarutto_kagawa"
 SLOT = os.environ.get("SLOT", "daily")
 DRY_RUN = os.environ.get("DRY_RUN", "") == "1"
@@ -55,6 +60,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 MANIFEST = REPO_ROOT / "stories" / "manifest.json"
 ROTATION = REPO_ROOT / "state" / "rotation.json"
 HISTORY = REPO_ROOT / "state" / "history.json"
+OVERRIDES = REPO_ROOT / "stories" / "overrides.json"
 
 
 def load_json(path: Path, default):
@@ -132,6 +138,19 @@ def post_story(url: str):
     print(f"  published: {publish(c['id'])}")
 
 
+def find_page(manifest: dict, key: str) -> dict:
+    """ページ番号（"6"）またはページID（"PBxxx"）で素材を探す。書き出しファイルが必須。"""
+    pages = manifest.get("pages", [])
+    hits = [p for p in pages if not p.get("removed_from_canva")
+            and (p["id"] == key or str(p.get("page_no")) == key)]
+    if not hits:
+        sys.exit(f"ERROR: ページ {key} がmanifestにありません")
+    page = hits[0]
+    if not page.get("file"):
+        sys.exit(f"ERROR: ページ {key} は書き出しファイルがありません")
+    return page
+
+
 def check_account():
     """トークンの持ち主を確認し、USER_IDを確定する。想定と違うアカウントなら中止。"""
     global USER_ID
@@ -175,15 +194,27 @@ def main():
         check_account()  # ドライランでもトークンの持ち主は確認する（素材が無くても確認できるよう先頭で）
 
     history = load_json(HISTORY, [])
-    if any(h["date"] == today and h["slot"] == SLOT for h in history):
+    if SLOT != "manual" and any(h["date"] == today and h["slot"] == SLOT for h in history):
         print("この枠は今日すでに投稿済み。終了。")
         return
 
     manifest = load_json(MANIFEST, {"pages": []})
-    page, new_state = pick(manifest, load_json(ROTATION, {}), today, SLOT)
-    if page is None:
-        print("候補の素材がありません（manifestを確認）。終了。")
+    rotation = load_json(ROTATION, {})
+    new_state = rotation  # 指定投稿ではローテを進めない
+    forced = PAGE if SLOT == "manual" else load_json(OVERRIDES, {}).get(today, {}).get(SLOT)
+    if SLOT == "manual" and not forced:
+        sys.exit("ERROR: 手動投稿にはページ（番号かID）の指定が必要")
+    if forced:
+        page = find_page(manifest, forced)
+        print(f"指定投稿: {forced}")
+    elif manifest.get("paused"):
+        print("自動ローテは一時停止中（manifestのpaused）。指定投稿も無いので終了。")
         return
+    else:
+        page, new_state = pick(manifest, rotation, today, SLOT)
+        if page is None:
+            print("候補の素材がありません（manifestを確認）。終了。")
+            return
     url = f"{RAW_BASE}/{page['file']}"
     print(f"選ばれた素材: p.{page.get('page_no', '?')} {page.get('facility') or '-'} "
           f"「{page.get('title') or ''}」 {page['file']}")

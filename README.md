@@ -14,6 +14,12 @@ GitHub ActionsがInstagram Graph API（Instagram Login API）で投稿し、画�
 - 頻出ページは11:30枠には出さない（同じ日に2回出るのを防ぐ）
 - 同じ日・同じ枠の再実行は同じ素材を選ぶ（乱数の種＝日付＋枠）。投稿済みかどうかは `state/history.json` で判定
 
+## 指定して出したいとき
+
+- **今すぐ1枚出す**: Actions →「story-manual」→ Run workflow → ページ番号（例 `6`）を入れて実行。ローテは進めない
+- **日付と枠を指定して出す**: `stories/overrides.json` に `{"2026-10-16": {"frequent": "ページID"}}` の形で書く。その日その枠は指定ページを出し、ローテは進めない
+- **自動ローテの一時停止**: `stories/manifest.json` の `"paused": true`。停止中も上の2つは動く。全ページの書き出しがそろったら `false` にする（sync_manifest.py は設定を引き継ぐ）
+
 ## 素材の元: Canva「ストーリーズ投稿用」
 
 - design_id: `DAHX4vXPj-4`（1080×1920）

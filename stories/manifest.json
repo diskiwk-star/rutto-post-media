@@ -1,4 +1,5 @@
 {
+  "paused": true,
   "pages": [
     {
       "id": "PBtpl92t4Hwn04PY",
@@ -33,8 +34,8 @@
       "title": "頻出頻度多くする",
       "facility": null,
       "frequent": true,
-      "file": null,
-      "active": false
+      "file": "stories/media/PBHgm2S7GzN36p9w.mp4",
+      "active": true
     },
     {
       "id": "PBky40ZKydYPB6d7",
@@ -51,8 +52,8 @@
       "title": "積凪",
       "facility": "積凪（共通）",
       "frequent": false,
-      "file": null,
-      "active": false
+      "file": "stories/media/PBmP54JsGlN16ybN.mp4",
+      "active": true
     },
     {
       "id": "PBd4xHX9D0rGHfPH",
