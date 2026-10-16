@@ -61,6 +61,9 @@ MANIFEST = REPO_ROOT / "stories" / "manifest.json"
 ROTATION = REPO_ROOT / "state" / "rotation.json"
 HISTORY = REPO_ROOT / "state" / "history.json"
 OVERRIDES = REPO_ROOT / "stories" / "overrides.json"
+# クロさんがpushする「今すぐ出して」の指示。{"page": "6", "request": "一意な文字列"}。
+# 投稿したら {} に戻す。request は履歴に残し、同じ指示を2回投稿しない。
+POST_NOW = REPO_ROOT / "stories" / "post_now.json"
 
 
 def load_json(path: Path, default):
@@ -201,7 +204,19 @@ def main():
     manifest = load_json(MANIFEST, {"pages": []})
     rotation = load_json(ROTATION, {})
     new_state = rotation  # 指定投稿ではローテを進めない
-    forced = PAGE if SLOT == "manual" else load_json(OVERRIDES, {}).get(today, {}).get(SLOT)
+    request = None
+    if SLOT == "manual" and not PAGE:
+        # Run workflowのページ入力が無い＝post_now.json のpushで起動した
+        now_req = load_json(POST_NOW, {})
+        if not now_req.get("page"):
+            print("post_now.json に指示がありません。終了。")
+            return
+        request = now_req.get("request") or now_req["page"]
+        if any(h.get("request") == request for h in history):
+            print(f"指示 {request} は投稿済み。終了。")
+            return
+    forced = (PAGE or (now_req["page"] if request else None)) if SLOT == "manual" \
+        else load_json(OVERRIDES, {}).get(today, {}).get(SLOT)
     if SLOT == "manual" and not forced:
         sys.exit("ERROR: 手動投稿にはページ（番号かID）の指定が必要")
     if forced:
@@ -243,7 +258,10 @@ def main():
     history.append({
         "date": today, "slot": SLOT, "id": page["id"], "page_no": page.get("page_no"),
         "facility": page.get("facility"), "posted_at": datetime.now(JST).isoformat(),
+        **({"request": request} if request else {}),
     })
+    if request:
+        save_json(POST_NOW, {})
     save_json(HISTORY, history[-400:])
     print("state/history を更新しました")
 

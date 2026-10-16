@@ -16,7 +16,8 @@ GitHub ActionsがInstagram Graph API（Instagram Login API）で投稿し、画�
 
 ## 指定して出したいとき
 
-- **今すぐ1枚出す**: Actions →「story-manual」→ Run workflow → ページ番号（例 `6`）を入れて実行。ローテは進めない
+- **今すぐ1枚出す（クロさんに頼む場合）**: `stories/post_now.json` を `{"page": "6", "request": "2026-10-16-p6-1"}` にしてpushすると、push起動の story-manual がすぐ投稿し、ファイルを `{}` に戻す。`request` は毎回変える（同じ値は投稿済みとして無視）。ローテは進めない
+- **今すぐ1枚出す（自分でやる場合）**: Actions →「story-manual」→ Run workflow → ページ番号（例 `6`）を入れて実行
 - **日付と枠を指定して出す**: `stories/overrides.json` に `{"2026-10-16": {"frequent": "ページID"}}` の形で書く。その日その枠は指定ページを出し、ローテは進めない
 - **自動ローテの一時停止**: `stories/manifest.json` の `"paused": true`。停止中も上の2つは動く。全ページの書き出しがそろったら `false` にする（sync_manifest.py は設定を引き継ぐ）
 

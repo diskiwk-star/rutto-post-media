@@ -1,12 +1,16 @@
 name: story-manual (ページ指定ですぐ投稿)
 
 on:
+  # クロさんが stories/post_now.json を書き換えてpushすると、その場で投稿する
+  push:
+    branches: [main]
+    paths: ['stories/post_now.json']
   workflow_dispatch:
     inputs:
       page:
         description: 'ページ番号（例: 6）またはページID'
         type: string
-        required: true
+        required: false
       dry_run:
         description: 'ドライラン（投稿せず内容表示のみ）'
         type: boolean
@@ -40,5 +44,5 @@ jobs:
         run: |
           git config user.name "rutto-autopost-bot"
           git config user.email "actions@github.com"
-          git add state/
-          git diff --cached --quiet || (git commit -m "story manual p.${{ inputs.page }} posted $(TZ=Asia/Tokyo date +%F)" && git pull --rebase origin main && git push)
+          git add state/ stories/post_now.json
+          git diff --cached --quiet || (git commit -m "story manual posted $(TZ=Asia/Tokyo date +%F)" && git pull --rebase origin main && git push)
