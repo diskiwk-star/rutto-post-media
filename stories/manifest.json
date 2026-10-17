@@ -43,8 +43,8 @@
       "title": "頻出頻度多くする",
       "facility": null,
       "frequent": true,
-      "file": null,
-      "active": false
+      "file": "stories/media/PBky40ZKydYPB6d7.mp4",
+      "active": true
     },
     {
       "id": "PBmP54JsGlN16ybN",
@@ -88,8 +88,8 @@
       "title": "積凪KITAKEN棟",
       "facility": "積凪KITAKEN棟",
       "frequent": false,
-      "file": null,
-      "active": false
+      "file": "stories/media/PB5Dhl3BCgz9sZlx.mp4",
+      "active": true
     },
     {
       "id": "PB2543RQ7dwv6DTg",
