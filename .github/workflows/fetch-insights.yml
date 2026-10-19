@@ -1,0 +1,44 @@
+name: fetch-insights (フィード・リールのインサイト取得)
+
+# 手動実行のみ。公開リポジトリなので、ログには件数と成否しか出さない。
+# データは保持1日のアーティファクトにだけ置き、クロさんがダウンロードしたらすぐ削除する。
+on:
+  workflow_dispatch:
+    inputs:
+      days:
+        description: 'さかのぼる日数'
+        type: number
+        default: 60
+      check_only:
+        description: 'インサイト権限の確認だけ行う（データは取らない）'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fetch-insights
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch insights
+        env:
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          DAYS: ${{ inputs.days }}
+          CHECK_ONLY: ${{ inputs.check_only == true && '1' || '' }}
+          OUT: ${{ runner.temp }}/insights.csv
+        run: python3 scripts/fetch_insights.py
+
+      - name: Upload (保持1日)
+        if: ${{ inputs.check_only != true }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: insights
+          path: ${{ runner.temp }}/insights.csv
+          retention-days: 1
