@@ -1,12 +1,14 @@
-name: story-daily (11:30 施設ローテ)
+name: story-daily (10:00 施設ローテ)
 
 on:
   schedule:
-    # 目標 11:30 JST。Actionsの定時実行は遅れることがあるので早めに起動し、目標時刻まで待つ。
-    # 予備の2本は本命が落ちたとき用。投稿済みなら state/history.json を見て何もせず終わる。
-    - cron: '43 1 * * *'   # 本命
-    - cron: '43 2 * * *'   # 予備1
-    - cron: '43 3 * * *'   # 予備2
+    # 目標 10:00 JST。GitHubの定時実行は実測で4〜5時間遅れるので、遅れを見込んで早朝から何本も仕掛ける。
+    # 起動が目標の90分より前なら何もせず終わり、90分以内なら目標時刻まで待つ。投稿済みなら履歴を見て終わる。
+    - cron: '43 19 * * *'   # 04:43 JST
+    - cron: '43 20 * * *'   # 05:43 JST
+    - cron: '43 21 * * *'   # 06:43 JST
+    - cron: '13 23 * * *'   # 08:13 JST
+    - cron: '13 0 * * *'   # 09:13 JST
   workflow_dispatch:
     inputs:
       dry_run:
@@ -14,7 +16,7 @@ on:
         type: boolean
         default: true
       target_time:
-        description: '投稿時刻（JST・HH:MM）。空なら既定（11:30）'
+        description: '投稿時刻（JST・HH:MM）。空なら既定（10:00）'
         type: string
         default: ''
 

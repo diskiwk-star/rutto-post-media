@@ -7,10 +7,10 @@
   IG_USER_ID      : 泊RuttoのIGユーザーID（Actions Variable・任意）。空ならトークンから取得する
   EXPECTED_USERNAME : 投稿先として想定するIGユーザー名。トークンが別アカウントのものなら投稿しない
                     （いりこ等のトークンを貼り間違えたときの安全装置）。既定は tomarutto_kagawa
-  SLOT            : "daily"（11:30・施設ローテ） / "frequent"（19:00・頻出ページ）
+  SLOT            : "daily"（10:00・施設ローテ） / "frequent"（19:00・頻出ページ）
                     / "manual"（PAGEで指定したページを即時投稿。ローテは進めない）
   PAGE            : manual用。ページ番号（例 "6"）またはページID
-  TARGET_TIME     : 投稿目標時刻（JST "HH:MM"）。既定は daily=11:30 / frequent=19:00
+  TARGET_TIME     : 投稿目標時刻（JST "HH:MM"）。既定は daily=10:00 / frequent=19:00
   DRY_RUN         : "1" なら投稿せず、選ばれた素材とAPIリクエストを表示のみ
   QUEUE_DATE      : 日付の上書き（"YYYY-MM-DD"）。テスト用
   RAW_BASE        : 素材URLの先頭。既定は本リポジトリのmainのraw URL
@@ -43,7 +43,7 @@ from pick import pick  # noqa: E402
 
 API = "https://graph.instagram.com/v23.0"
 JST = timezone(timedelta(hours=9))
-DEFAULT_TIME = {"daily": "11:30", "frequent": "19:00", "manual": "00:00"}  # manualは即時
+DEFAULT_TIME = {"daily": "10:00", "frequent": "19:00", "manual": "00:00"}  # manualは即時
 MAX_WAIT_SEC = 90 * 60
 
 TOKEN = os.environ.get("IG_ACCESS_TOKEN", "")
@@ -52,7 +52,7 @@ PAGE = os.environ.get("PAGE", "").strip()
 EXPECTED_USERNAME = os.environ.get("EXPECTED_USERNAME") or "tomarutto_kagawa"
 SLOT = os.environ.get("SLOT", "daily")
 DRY_RUN = os.environ.get("DRY_RUN", "") == "1"
-TARGET_TIME = os.environ.get("TARGET_TIME") or DEFAULT_TIME.get(SLOT, "11:30")
+TARGET_TIME = os.environ.get("TARGET_TIME") or DEFAULT_TIME.get(SLOT, "10:00")
 RAW_BASE = os.environ.get(
     "RAW_BASE", "https://raw.githubusercontent.com/diskiwk-star/rutto-post-media/main")
 
