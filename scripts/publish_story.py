@@ -7,11 +7,11 @@
   IG_USER_ID      : 泊RuttoのIGユーザーID（Actions Variable・任意）。空ならトークンから取得する
   EXPECTED_USERNAME : 投稿先として想定するIGユーザー名。トークンが別アカウントのものなら投稿しない
                     （いりこ等のトークンを貼り間違えたときの安全装置）。既定は tomarutto_kagawa
-  SLOT            : "daily"（10:00・施設ローテ） / "frequent"（19:00・頻出ページ）
-                    / "manual"（PAGEで指定したページを即時投稿。ローテは進めない）
+  SLOT            : "am"（10:00） / "pm"（19:00） / "manual"（PAGEで指定したページを即時投稿。ローテは進めない）
+                    午前と午後のどちらに「施設ローテ(daily)」「頻出(frequent)」を出すかは、日ごとにランダムで入れ替える
+                    （同じ時間帯の人に毎日同じ種類が届かないようにするため。日付で固定。kind_for 参照）
   PAGE            : manual用。ページ番号（例 "6"）またはページID
-  TARGET_TIME     : 投稿目標時刻（JST "HH:MM"）の上書き。空なら毎日ランダム
-                    （午前 daily=09:00〜11:30 / 午後 frequent=18:00〜21:30。日付＋枠で固定）
+  TARGET_TIME     : 投稿目標時刻（JST "HH:MM"）の上書き。空なら am=10:00 / pm=19:00
   DRY_RUN         : "1" なら投稿せず、選ばれた素材とAPIリクエストを表示のみ
   QUEUE_DATE      : 日付の上書き（"YYYY-MM-DD"）。テスト用
   RAW_BASE        : 素材URLの先頭。既定は本リポジトリのmainのraw URL
@@ -19,10 +19,12 @@
 動作:
   stories/manifest.json（素材一覧）と state/rotation.json（ローテの進み具合）から
   scripts/pick.py で今日の素材を選び、STORIESとして投稿する。
-  stories/overrides.json に {"YYYY-MM-DD": {"frequent": "PBxxx"}} があれば、その日その枠は
-  指定ページを出す（ローテは進めない）。manifestの "paused": true の間は指定分だけ投稿する。
+  stories/overrides.json に {"YYYY-MM-DD": {"frequent": "PBxxx"}} があれば、その日その種類
+  （daily=施設 / frequent=頻出）は指定ページを出す（ローテは進めない）。午前・午後のどちらに出るかは
+  日ごとのランダム。固定したいときは {"am": "daily"} のように午前に出す種類を書く。
+  manifestの "paused": true の間は指定分だけ投稿する。
   成功したら state/rotation.json と state/history.json を更新（ワークフロー側でコミット）。
-  history に同じ日付・枠があれば投稿済みとして何もしない（二重投稿防止）。
+  history に同じ日付・時間帯(am/pm)があれば投稿済みとして何もしない（二重投稿防止）。
 
 投稿時刻について（iriko-post-media と同じ考え方）:
   GitHub Actionsの定時実行は数時間遅れることがあるので、cronは早めに仕掛け、
@@ -45,18 +47,17 @@ from pick import pick  # noqa: E402
 
 API = "https://graph.instagram.com/v23.0"
 JST = timezone(timedelta(hours=9))
-# 投稿時刻は毎日ランダム（日付＋枠で固定。同じ日に何度起動しても同じ時刻になる）。
-# 午前の枠(daily)と午後の枠(frequent)それぞれの幅の中から、1分刻みで選ぶ。manualは即時。
-TIME_WINDOWS = {"daily": ("09:00", "11:30"), "frequent": ("18:00", "21:30")}
-MAX_WAIT_SEC = 4 * 60 * 60  # 起動が目標の4時間より前なら何もせず終わる（定時実行は数時間遅れる前提）
+# 投稿時刻は固定（午前10:00・午後19:00）。manualは即時。
+SLOT_TIME = {"am": "10:00", "pm": "19:00", "manual": "00:00"}
+MAX_WAIT_SEC = 90 * 60  # 起動が目標の90分より前なら何もせず終わる（早朝・昼過ぎから複数本cronを仕掛けてある）
 
 TOKEN = os.environ.get("IG_ACCESS_TOKEN", "")
 USER_ID = os.environ.get("IG_USER_ID", "")
 PAGE = os.environ.get("PAGE", "").strip()
 EXPECTED_USERNAME = os.environ.get("EXPECTED_USERNAME") or "tomarutto_kagawa"
-SLOT = os.environ.get("SLOT", "daily")
+SLOT = os.environ.get("SLOT", "am")
 DRY_RUN = os.environ.get("DRY_RUN", "") == "1"
-TARGET_TIME_OVERRIDE = os.environ.get("TARGET_TIME", "").strip()  # 空ならランダム
+TARGET_TIME_OVERRIDE = os.environ.get("TARGET_TIME", "").strip()  # 空なら既定（am=10:00 / pm=19:00）
 RAW_BASE = os.environ.get(
     "RAW_BASE", "https://raw.githubusercontent.com/diskiwk-star/rutto-post-media/main")
 
@@ -179,15 +180,39 @@ def check_account():
         sys.exit(f"ERROR: IG_USER_ID({USER_ID}) とトークンのuser_idが一致しません。")
 
 
-def target_time_for(date: str) -> str:
-    """その日・その枠の投稿目標時刻 "HH:MM"。TARGET_TIME指定があればそれを使う。"""
-    if TARGET_TIME_OVERRIDE:
-        return TARGET_TIME_OVERRIDE
-    if SLOT not in TIME_WINDOWS:
-        return "00:00"
-    lo, hi = (int(a) * 60 + int(b) for a, b in (w.split(":") for w in TIME_WINDOWS[SLOT]))
-    m = random.Random(f"rutto-story-time/{date}/{SLOT}").randint(lo, hi)
-    return f"{m // 60:02d}:{m % 60:02d}"
+def target_time_for() -> str:
+    """この時間帯の投稿目標時刻 "HH:MM"。TARGET_TIME指定があればそれを使う。"""
+    return TARGET_TIME_OVERRIDE or SLOT_TIME.get(SLOT, "00:00")
+
+
+ORDER_ANCHOR = "2026-10-01"  # 入れ替え順の計算の起点（変えると過去の並びも変わるので触らない）
+
+
+def am_kind(date: str, overrides: dict) -> str:
+    """その日、午前に出す種類（"daily"=施設ローテ / "frequent"=頻出）。
+    日付ごとのランダム。ただし同じ並びが3日続いたら4日目は入れ替える。
+    overrides[date]["am"] があればそれを優先する（固定したい日用）。"""
+    fixed = overrides.get(date, {}).get("am")
+    if fixed in ("daily", "frequent"):
+        return fixed
+    d = datetime.strptime(ORDER_ANCHOR, "%Y-%m-%d").date()
+    target = datetime.strptime(date, "%Y-%m-%d").date()
+    hist = []
+    while d <= target:
+        k = random.Random(f"rutto-story-order/{d.isoformat()}").choice(["daily", "frequent"])
+        if len(hist) >= 3 and hist[-1] == hist[-2] == hist[-3] == k:
+            k = "frequent" if k == "daily" else "daily"
+        hist.append(k)
+        d += timedelta(days=1)
+    return hist[-1]
+
+
+def kind_for(date: str, overrides: dict) -> str:
+    """この時間帯(SLOT)に出す種類。manualは使わない。"""
+    am = am_kind(date, overrides)
+    if SLOT == "am":
+        return am
+    return "frequent" if am == "daily" else "daily"
 
 
 def wait_until_target(target_time: str):
@@ -214,8 +239,12 @@ def main():
 
     history = load_json(HISTORY, [])
     if SLOT != "manual" and any(h["date"] == today and h["slot"] == SLOT for h in history):
-        print("この枠は今日すでに投稿済み。終了。")
+        print("この時間帯は今日すでに投稿済み。終了。")
         return
+    overrides = load_json(OVERRIDES, {})
+    kind = None if SLOT == "manual" else kind_for(today, overrides)
+    if kind:
+        print(f"今日の{ '午前' if SLOT == 'am' else '午後' }の枠: {'施設ローテ' if kind == 'daily' else '頻出'}")
 
     manifest = load_json(MANIFEST, {"pages": []})
     rotation = load_json(ROTATION, {})
@@ -232,7 +261,7 @@ def main():
             print(f"指示 {request} は投稿済み。終了。")
             return
     forced = (PAGE or (now_req["page"] if request else None)) if SLOT == "manual" \
-        else load_json(OVERRIDES, {}).get(today, {}).get(SLOT)
+        else overrides.get(today, {}).get(kind)
     if SLOT == "manual" and not forced:
         sys.exit("ERROR: 手動投稿にはページ（番号かID）の指定が必要")
     if forced:
@@ -242,7 +271,7 @@ def main():
         print("自動ローテは一時停止中（manifestのpaused）。指定投稿も無いので終了。")
         return
     else:
-        page, new_state = pick(manifest, rotation, today, SLOT)
+        page, new_state = pick(manifest, rotation, today, kind)
         if page is None:
             print("候補の素材がありません（manifestを確認）。終了。")
             return
@@ -255,8 +284,8 @@ def main():
             sys.exit("ERROR: IG_ACCESS_TOKEN が未設定")
         check_account()
 
-    target = target_time_for(today)
-    print(f"今日の投稿目標時刻: {target}")
+    target = target_time_for()
+    print(f"投稿目標時刻: {target}")
     wait_until_target(target)
 
     # 待機中に別の実行（予備のcron）が投稿を終えていないか、コミット済みの履歴で再確認
@@ -274,7 +303,7 @@ def main():
         return
     save_json(ROTATION, new_state)
     history.append({
-        "date": today, "slot": SLOT, "id": page["id"], "page_no": page.get("page_no"),
+        "date": today, "slot": SLOT, **({"kind": kind} if kind else {}), "id": page["id"], "page_no": page.get("page_no"),
         "facility": page.get("facility"), "posted_at": datetime.now(JST).isoformat(),
         **({"request": request} if request else {}),
     })

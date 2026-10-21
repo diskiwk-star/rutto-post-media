@@ -1,9 +1,9 @@
-name: story-frequent (午後 頻出ページ)
+name: story-pm (午後 19:00)
 
 on:
   schedule:
-    # 目標は毎日ランダム（午後 18:00〜21:30）。GitHubの定時実行は実測で4〜5時間遅れるので、遅れを見込んで昼過ぎから何本も仕掛ける。
-    # 起動が目標の4時間より前なら何もせず終わり、4時間以内なら目標時刻まで待つ。投稿済みなら履歴を見て終わる。
+    # 目標 19:00 JST（午後。施設ローテか頻出かは日ごとに入れ替わる）。GitHubの定時実行は実測で4〜5時間遅れるので、遅れを見込んで何本も仕掛ける。
+    # 起動が目標の90分より前なら何もせず終わり、90分以内なら目標時刻まで待つ。投稿済みなら履歴を見て終わる。
     - cron: '43 4 * * *'   # 13:43 JST
     - cron: '43 5 * * *'   # 14:43 JST
     - cron: '43 6 * * *'   # 15:43 JST
@@ -16,7 +16,7 @@ on:
         type: boolean
         default: true
       target_time:
-        description: '投稿時刻（JST・HH:MM）。空なら毎日ランダム（午後 18:00〜21:30）'
+        description: '投稿時刻（JST・HH:MM）。空なら既定（19:00）'
         type: string
         default: ''
 
@@ -25,21 +25,21 @@ permissions:
 
 concurrency:
   # 投稿中の実行を途中で止めないよう、後から来た実行は待たせる（終わってから履歴を見て終了する）
-  group: rutto-story-frequent
+  group: rutto-story-pm
   cancel-in-progress: false
 
 jobs:
   post:
     runs-on: ubuntu-latest
-    timeout-minutes: 300
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
 
-      - name: Publish story (frequent)
+      - name: Publish story (pm)
         env:
           IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
           IG_USER_ID: ${{ vars.IG_USER_ID }}
-          SLOT: frequent
+          SLOT: pm
           TARGET_TIME: ${{ inputs.target_time }}
           DRY_RUN: ${{ inputs.dry_run == true && '1' || '' }}
         run: python3 scripts/publish_story.py
@@ -50,4 +50,4 @@ jobs:
           git config user.name "rutto-autopost-bot"
           git config user.email "actions@github.com"
           git add state/
-          git diff --cached --quiet || (git commit -m "story frequent posted $(TZ=Asia/Tokyo date +%F)" && git pull --rebase origin main && git push)
+          git diff --cached --quiet || (git commit -m "story pm posted $(TZ=Asia/Tokyo date +%F)" && git pull --rebase origin main && git push)
