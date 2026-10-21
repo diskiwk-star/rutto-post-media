@@ -1,9 +1,9 @@
-name: story-daily (10:00 施設ローテ)
+name: story-daily (午前 施設ローテ)
 
 on:
   schedule:
-    # 目標 10:00 JST。GitHubの定時実行は実測で4〜5時間遅れるので、遅れを見込んで早朝から何本も仕掛ける。
-    # 起動が目標の90分より前なら何もせず終わり、90分以内なら目標時刻まで待つ。投稿済みなら履歴を見て終わる。
+    # 目標は毎日ランダム（午前 09:00〜11:30）。GitHubの定時実行は実測で4〜5時間遅れるので、遅れを見込んで早朝から何本も仕掛ける。
+    # 起動が目標の4時間より前なら何もせず終わり、4時間以内なら目標時刻まで待つ。投稿済みなら履歴を見て終わる。
     - cron: '43 19 * * *'   # 04:43 JST
     - cron: '43 20 * * *'   # 05:43 JST
     - cron: '43 21 * * *'   # 06:43 JST
@@ -16,7 +16,7 @@ on:
         type: boolean
         default: true
       target_time:
-        description: '投稿時刻（JST・HH:MM）。空なら既定（10:00）'
+        description: '投稿時刻（JST・HH:MM）。空なら毎日ランダム（午前 09:00〜11:30）'
         type: string
         default: ''
 
@@ -31,7 +31,7 @@ concurrency:
 jobs:
   post:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 300
     steps:
       - uses: actions/checkout@v4
 

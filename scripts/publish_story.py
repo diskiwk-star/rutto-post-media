@@ -10,7 +10,8 @@
   SLOT            : "daily"（10:00・施設ローテ） / "frequent"（19:00・頻出ページ）
                     / "manual"（PAGEで指定したページを即時投稿。ローテは進めない）
   PAGE            : manual用。ページ番号（例 "6"）またはページID
-  TARGET_TIME     : 投稿目標時刻（JST "HH:MM"）。既定は daily=10:00 / frequent=19:00
+  TARGET_TIME     : 投稿目標時刻（JST "HH:MM"）の上書き。空なら毎日ランダム
+                    （午前 daily=09:00〜11:30 / 午後 frequent=18:00〜21:30。日付＋枠で固定）
   DRY_RUN         : "1" なら投稿せず、選ばれた素材とAPIリクエストを表示のみ
   QUEUE_DATE      : 日付の上書き（"YYYY-MM-DD"）。テスト用
   RAW_BASE        : 素材URLの先頭。既定は本リポジトリのmainのraw URL
@@ -30,6 +31,7 @@
 
 import json
 import os
+import random
 import sys
 import time
 import urllib.error
@@ -43,8 +45,10 @@ from pick import pick  # noqa: E402
 
 API = "https://graph.instagram.com/v23.0"
 JST = timezone(timedelta(hours=9))
-DEFAULT_TIME = {"daily": "10:00", "frequent": "19:00", "manual": "00:00"}  # manualは即時
-MAX_WAIT_SEC = 90 * 60
+# 投稿時刻は毎日ランダム（日付＋枠で固定。同じ日に何度起動しても同じ時刻になる）。
+# 午前の枠(daily)と午後の枠(frequent)それぞれの幅の中から、1分刻みで選ぶ。manualは即時。
+TIME_WINDOWS = {"daily": ("09:00", "11:30"), "frequent": ("18:00", "21:30")}
+MAX_WAIT_SEC = 4 * 60 * 60  # 起動が目標の4時間より前なら何もせず終わる（定時実行は数時間遅れる前提）
 
 TOKEN = os.environ.get("IG_ACCESS_TOKEN", "")
 USER_ID = os.environ.get("IG_USER_ID", "")
@@ -52,7 +56,7 @@ PAGE = os.environ.get("PAGE", "").strip()
 EXPECTED_USERNAME = os.environ.get("EXPECTED_USERNAME") or "tomarutto_kagawa"
 SLOT = os.environ.get("SLOT", "daily")
 DRY_RUN = os.environ.get("DRY_RUN", "") == "1"
-TARGET_TIME = os.environ.get("TARGET_TIME") or DEFAULT_TIME.get(SLOT, "10:00")
+TARGET_TIME_OVERRIDE = os.environ.get("TARGET_TIME", "").strip()  # 空ならランダム
 RAW_BASE = os.environ.get(
     "RAW_BASE", "https://raw.githubusercontent.com/diskiwk-star/rutto-post-media/main")
 
@@ -175,7 +179,19 @@ def check_account():
         sys.exit(f"ERROR: IG_USER_ID({USER_ID}) とトークンのuser_idが一致しません。")
 
 
-def wait_until_target():
+def target_time_for(date: str) -> str:
+    """その日・その枠の投稿目標時刻 "HH:MM"。TARGET_TIME指定があればそれを使う。"""
+    if TARGET_TIME_OVERRIDE:
+        return TARGET_TIME_OVERRIDE
+    if SLOT not in TIME_WINDOWS:
+        return "00:00"
+    lo, hi = (int(a) * 60 + int(b) for a, b in (w.split(":") for w in TIME_WINDOWS[SLOT]))
+    m = random.Random(f"rutto-story-time/{date}/{SLOT}").randint(lo, hi)
+    return f"{m // 60:02d}:{m % 60:02d}"
+
+
+def wait_until_target(target_time: str):
+    TARGET_TIME = target_time
     now = datetime.now(JST)
     hh, mm = (int(x) for x in TARGET_TIME.split(":"))
     delta = (now.replace(hour=hh, minute=mm, second=0, microsecond=0) - now).total_seconds()
@@ -239,7 +255,9 @@ def main():
             sys.exit("ERROR: IG_ACCESS_TOKEN が未設定")
         check_account()
 
-    wait_until_target()
+    target = target_time_for(today)
+    print(f"今日の投稿目標時刻: {target}")
+    wait_until_target(target)
 
     # 待機中に別の実行（予備のcron）が投稿を終えていないか、コミット済みの履歴で再確認
     if not DRY_RUN:

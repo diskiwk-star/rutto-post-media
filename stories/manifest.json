@@ -16,8 +16,8 @@
       "title": "頻出頻度多くする",
       "facility": null,
       "frequent": true,
-      "file": null,
-      "active": false
+      "file": "stories/media/PBxWh2N9JNZTzGb4.mp4",
+      "active": true
     },
     {
       "id": "PBr3C3XVd6N1xbbX",
@@ -331,8 +331,8 @@
       "title": "TSUSHIMA",
       "facility": "Archipelago TSUSHIMA",
       "frequent": false,
-      "file": null,
-      "active": false
+      "file": "stories/media/PBFpzKf5KVGl4dbs.mp4",
+      "active": true
     },
     {
       "id": "PBNcGK2JnPw3s3Dh",
