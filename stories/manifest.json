@@ -213,8 +213,8 @@
       "title": "TSUSHIMA",
       "facility": "Archipelago TSUSHIMA",
       "frequent": false,
-      "file": null,
-      "active": false
+      "file": "stories/media/PBMdnS7XB3kbx5Vk.mp4",
+      "active": true
     },
     {
       "id": "PBkjfsBjtNZlYk23",
@@ -303,8 +303,8 @@
       "title": "ARIAKE106",
       "facility": "ARIAKE palm tree house",
       "frequent": false,
-      "file": null,
-      "active": false
+      "file": "stories/media/PBBbcJy7SxvjNRjL.mp4",
+      "active": true
     },
     {
       "id": "PBCgKxq2Qg7WK99n",
