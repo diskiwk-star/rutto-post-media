@@ -186,8 +186,8 @@
       "title": "TSUSHIMA",
       "facility": "Archipelago TSUSHIMA",
       "frequent": false,
-      "file": null,
-      "active": false
+      "file": "stories/media/PBnWqF9vpc2d0Tqs.mp4",
+      "active": true
     },
     {
       "id": "PBq82tvNSj6NxcwV",
@@ -195,8 +195,8 @@
       "title": "TSUSHIMA",
       "facility": "Archipelago TSUSHIMA",
       "frequent": false,
-      "file": null,
-      "active": false
+      "file": "stories/media/PBq82tvNSj6NxcwV.mp4",
+      "active": true
     },
     {
       "id": "PBB547fmC3XX6gpR",
