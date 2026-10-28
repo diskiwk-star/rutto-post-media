@@ -118,18 +118,42 @@ def inspect(path: str) -> int:
     return 0 if not problems else 1
 
 
+def video_similarity(a_path: str, b_path: str, seconds: float) -> float:
+    """2つの動画の先頭 seconds 秒の映像がどれだけ同じか（SSIM。1.0＝同じ）"""
+    r = subprocess.run(
+        ["ffmpeg", "-hide_banner", "-t", f"{seconds:.3f}", "-i", a_path,
+         "-t", f"{seconds:.3f}", "-i", b_path,
+         "-lavfi", "[0:v]scale=270:480[a];[1:v]scale=270:480[b];[a][b]ssim",
+         "-f", "null", "-"], capture_output=True, text=True)
+    for tok in r.stderr.split():
+        if tok.startswith("All:"):
+            return float(tok[4:])
+    return 0.0
+
+
 def fix(new_path: str, ref_path: str, out_path: str) -> int:
+    """新しい書き出しの映像に、基準の音を付け直す。
+    新しい映像が基準より長いとき（音のズレでページが伸びたとき）は、先頭から基準の長さだけ使う。
+    ただし、先頭部分の映像が基準と同じ中身でなければ（別の映像に差し替わっている等）直さずに終わる。"""
     _, nd = load(new_path)
     _, rd = load(ref_path)
     nv, rv = nd.get("video", 0), rd.get("video", 0)
-    if abs(nv - rv) > 0.3:
-        print(f"映像の長さが違うため直せません（新 {nv:.2f}秒 / 基準 {rv:.2f}秒）。ページの長さが変わっています")
+    if nv < rv - 0.3:
+        print(f"新しい映像が基準より短いため直せません（新 {nv:.2f}秒 / 基準 {rv:.2f}秒）")
         return 2
+    sim = video_similarity(new_path, ref_path, rv)
+    print(f"映像の先頭{rv:.1f}秒の一致: {sim:.3f}（1.0＝同じ）")
+    if sim < 0.85:
+        print("映像の中身が基準と違うため直せません（映像の差し替え・大きな編集があります）。基準を取り直してください")
+        return 2
+    if abs(nv - rv) > 0.3:
+        print(f"・新しい映像は{nv:.2f}秒に伸びていたので、先頭の{rv:.2f}秒だけを使います")
     subprocess.run(
         ["ffmpeg", "-y", "-v", "error", "-i", new_path, "-i", ref_path,
-         "-map", "0:v:0", "-map", "1:a:0", "-c:v", "copy", "-c:a", "aac", "-b:a", "128k",
-         "-t", f"{nv:.3f}", "-movflags", "+faststart", out_path], check=True)
-    print(f"作成: {out_path}（映像＝新しい書き出し、音＝基準）")
+         "-map", "0:v:0", "-map", "1:a:0", "-c:v", "libx264", "-crf", "18", "-preset", "medium",
+         "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "128k",
+         "-t", f"{rv:.3f}", "-movflags", "+faststart", out_path], check=True)
+    print(f"作成: {out_path}（映像＝新しい書き出し、音＝基準、長さ {rv:.2f}秒）")
     print("--- 作ったファイルの確認 ---")
     return compare(out_path, ref_path)
 
