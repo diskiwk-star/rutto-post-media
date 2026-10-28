@@ -47,7 +47,7 @@ GitHubの定時実行は4〜5時間遅れて起動する（2026-10-16〜19の実
    - 基本は全ページ `export-design` の `mp4`（`quality: vertical_1080p`）。音源を付ける運用なので静止画ページもMP4にする
    - 音楽なしの静止画ページだけ `png` でもよい
    - **ユーザーがテキスト・音源を入れ終わってから書き出す**（途中で書き出すとやり直しになる）
-   - **書き出したら必ず音のズレを確認する**（Canvaのコネクタは音の位置を読めないので、書き出したMP4の音を調べる）。`python3 scripts/audio_check.py inspect 新.mp4`（頭の無音・長さの食い違い）と、`stories/media/` に同じIDの投稿済みファイルがあれば `compare 新.mp4 既存.mp4`（既存と音が同じか）。**要確認が出たら `stories/media/` に上書きせず、ユーザーに報告する**
+   - **書き出したら必ず音のズレを確認する**（Canvaのコネクタは音の位置を読めないので、書き出したMP4の音を調べる）。`python3 scripts/audio_check.py inspect 新.mp4`（頭の無音・長さの食い違い）と、`stories/media/` に同じIDの投稿済みファイルがあれば `compare 新.mp4 既存.mp4`（既存と音が同じか）。**要確認が出たら `stories/media/` に上書きしない**。基準（ユーザーが「音OK」と確認した書き出し＝`stories/media/` の投稿済みファイル）があるページで、映像の長さが同じなら `python3 scripts/audio_check.py fix 新.mp4 基準.mp4 出力.mp4` で、新しい映像に基準の音を付け直して直せる。長さが違う・基準が無いページは直せないので、ユーザーに報告する
    - ページ番号は、ページの削除・追加で毎回ずれる。**指定はページIDで確かめ、番号だけを信じない**
    - 書き出しURLはすぐ失効するので受け取ったらすぐ `curl`
 3. `python3 scripts/sync_manifest.py canva_pages.json` → 未分類・書き出し漏れの一覧を確認

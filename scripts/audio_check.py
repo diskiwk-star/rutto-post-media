@@ -48,38 +48,41 @@ def envelope(a, hop=80):
     return np.sqrt((a[: n * hop].reshape(n, hop) ** 2).mean(axis=1) + 1e-12)
 
 
+def gcc_phat(x, y):
+    """波形そのものを位相だけで重ね合わせる（GCC-PHAT）。同じ曲が時間だけずれているなら、
+    ずれの位置に鋭い山ができる。戻り値: (lag秒 正＝xがyより遅れている, 信頼度＝山の高さ/ふつうの高さ)"""
+    n = len(x) + len(y)
+    size = 1 << (n - 1).bit_length()
+    X, Y = np.fft.rfft(x, size), np.fft.rfft(y, size)
+    R = X * np.conj(Y)
+    R /= np.abs(R) + 1e-9
+    cc = np.fft.irfft(R, size)
+    cc = np.concatenate([cc[-(len(y) - 1):], cc[:len(x)]])  # lag = -(len(y)-1) .. len(x)-1
+    mag = np.abs(cc)
+    i = int(np.argmax(mag))
+    lag = i - (len(y) - 1)
+    conf = float(mag[i] / (np.median(mag) + 1e-9))
+    return lag / SR, conf
+
+
 def compare(new_path: str, ref_path: str) -> int:
     new, nd = load(new_path)
     ref, rd = load(ref_path)
     if len(new) == 0 or len(ref) == 0:
         print("音が入っていません（片方が無音）。要確認")
         return 1
-    en, er = envelope(new), envelope(ref)
-    en = (en - en.mean()) / (en.std() + 1e-9)
-    er = (er - er.mean()) / (er.std() + 1e-9)
-    n = len(en) + len(er) - 1
-    size = 1 << (n - 1).bit_length()
-    cc = np.fft.irfft(np.fft.rfft(en, size) * np.conj(np.fft.rfft(er, size)), size)
-    lags = np.concatenate([np.arange(0, len(en)), np.arange(-len(er) + 1, 0)])
-    cc = np.concatenate([cc[: len(en)], cc[size - len(er) + 1:]])
-    i = int(np.argmax(cc))
-    lag = int(lags[i])  # 正＝新の音が基準より遅れている（10ミリ秒単位）
-    lag_s = lag * 0.01
-    # 重なっている範囲だけで相関係数を取り直す（長さが違っても正しく測れる）
-    a0, b0 = (lag, 0) if lag >= 0 else (0, -lag)
-    m = min(len(en) - a0, len(er) - b0)
-    if m < 50:
-        sim = 0.0
-    else:
-        x, y = en[a0:a0 + m], er[b0:b0 + m]
-        sim = float(np.corrcoef(x, y)[0, 1])
+    lag_s, conf = gcc_phat(new, ref)
     print(f"長さ（動画）新 {nd.get('video', 0):.2f}秒 / 基準 {rd.get('video', 0):.2f}秒")
     print(f"長さ（音）  新 {len(new) / SR:.2f}秒 / 基準 {len(ref) / SR:.2f}秒")
-    print(f"ずれ: 新の音は基準より {lag_s:+.2f}秒（＋は遅れ、−は早まり）　類似度: {sim:.2f}")
+    same_track = conf >= 60
+    if same_track:
+        print(f"ずれ: 新の音は基準より {lag_s:+.3f}秒（＋は遅れ、−は早まり）　一致の確かさ: {conf:.0f}")
+    else:
+        print(f"同じ曲の一致が見つかりません（確かさ {conf:.0f}）。別の曲、または曲の別の部分の可能性")
     same_len = abs(len(new) - len(ref)) / SR <= 0.3
     if not same_len:
         print("・長さが違います（ページの長さが変わっている）")
-    ok = abs(lag_s) <= 0.05 and sim >= 0.9 and same_len
+    ok = same_track and abs(lag_s) <= 0.05 and same_len
     print("判定: " + ("同じ（ずれなし）" if ok else "ずれている／別の音の可能性。要確認"))
     return 0 if ok else 1
 
@@ -115,9 +118,27 @@ def inspect(path: str) -> int:
     return 0 if not problems else 1
 
 
+def fix(new_path: str, ref_path: str, out_path: str) -> int:
+    _, nd = load(new_path)
+    _, rd = load(ref_path)
+    nv, rv = nd.get("video", 0), rd.get("video", 0)
+    if abs(nv - rv) > 0.3:
+        print(f"映像の長さが違うため直せません（新 {nv:.2f}秒 / 基準 {rv:.2f}秒）。ページの長さが変わっています")
+        return 2
+    subprocess.run(
+        ["ffmpeg", "-y", "-v", "error", "-i", new_path, "-i", ref_path,
+         "-map", "0:v:0", "-map", "1:a:0", "-c:v", "copy", "-c:a", "aac", "-b:a", "128k",
+         "-t", f"{nv:.3f}", "-movflags", "+faststart", out_path], check=True)
+    print(f"作成: {out_path}（映像＝新しい書き出し、音＝基準）")
+    print("--- 作ったファイルの確認 ---")
+    return compare(out_path, ref_path)
+
+
 if __name__ == "__main__":
     if len(sys.argv) == 4 and sys.argv[1] == "compare":
         sys.exit(compare(sys.argv[2], sys.argv[3]))
+    if len(sys.argv) == 5 and sys.argv[1] == "fix":
+        sys.exit(fix(sys.argv[2], sys.argv[3], sys.argv[4]))
     if len(sys.argv) == 3 and sys.argv[1] == "inspect":
         sys.exit(inspect(sys.argv[2]))
     sys.exit(__doc__)
