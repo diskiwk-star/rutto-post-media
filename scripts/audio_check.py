@@ -24,9 +24,10 @@ SR = 8000  # 解析用のサンプリング周波数
 
 def load(path: str):
     """動画から音声（モノラル8kHz）と動画・音声の長さを取り出す"""
-    raw = subprocess.run(
+    r = subprocess.run(
         ["ffmpeg", "-v", "error", "-i", path, "-vn", "-ac", "1", "-ar", str(SR),
-         "-f", "f32le", "-"], capture_output=True, check=True).stdout
+         "-f", "f32le", "-"], capture_output=True)
+    raw = r.stdout if r.returncode == 0 else b""  # 音声トラックが無い動画は空の音として扱う
     audio = np.frombuffer(raw, dtype=np.float32)
     probe = subprocess.run(
         ["ffprobe", "-v", "error", "-show_entries", "stream=codec_type,duration",

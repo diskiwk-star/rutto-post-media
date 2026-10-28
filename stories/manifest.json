@@ -1,5 +1,4 @@
 {
-  "paused": true,
   "pages": [
     {
       "id": "PBtpl92t4Hwn04PY",
@@ -49,8 +48,8 @@
     {
       "id": "PBmP54JsGlN16ybN",
       "page_no": 6,
-      "title": "積凪",
-      "facility": "積凪（共通）",
+      "title": "積凪KITAKEN棟",
+      "facility": "積凪KITAKEN棟",
       "frequent": false,
       "file": "stories/media/PBmP54JsGlN16ybN.mp4",
       "active": true
@@ -61,8 +60,8 @@
       "title": "積凪",
       "facility": "積凪（共通）",
       "frequent": false,
-      "file": null,
-      "active": false
+      "file": "stories/media/PBd4xHX9D0rGHfPH.mp4",
+      "active": true
     },
     {
       "id": "PBM9lmlBzRsS6bsj",
@@ -70,8 +69,8 @@
       "title": "積凪KITAKEN棟",
       "facility": "積凪KITAKEN棟",
       "frequent": false,
-      "file": null,
-      "active": false
+      "file": "stories/media/PBM9lmlBzRsS6bsj.mp4",
+      "active": true
     },
     {
       "id": "PBnpZQhjS3tLvp8w",
@@ -79,8 +78,8 @@
       "title": "積凪KITAKEN棟",
       "facility": "積凪KITAKEN棟",
       "frequent": false,
-      "file": null,
-      "active": false
+      "file": "stories/media/PBnpZQhjS3tLvp8w.mp4",
+      "active": true
     },
     {
       "id": "PB5Dhl3BCgz9sZlx",
@@ -106,8 +105,8 @@
       "title": "積凪KITAKEN棟",
       "facility": "積凪KITAKEN棟",
       "frequent": false,
-      "file": null,
-      "active": false
+      "file": "stories/media/PB3xgmPnMCkCvFTt.mp4",
+      "active": true
     },
     {
       "id": "PB69wkJ2qbPNtDJ8",
@@ -115,8 +114,8 @@
       "title": "積凪KITAKEN棟",
       "facility": "積凪KITAKEN棟",
       "frequent": false,
-      "file": null,
-      "active": false
+      "file": "stories/media/PB69wkJ2qbPNtDJ8.mp4",
+      "active": true
     },
     {
       "id": "PBgjQ6MWfhRN69P5",
@@ -124,8 +123,8 @@
       "title": "ZERO base villa",
       "facility": "ZERO BASE villa",
       "frequent": false,
-      "file": null,
-      "active": false
+      "file": "stories/media/PBgjQ6MWfhRN69P5.mp4",
+      "active": true
     },
     {
       "id": "PB9scLVbRxrp0B0y",
@@ -133,8 +132,8 @@
       "title": "ZERO base villa",
       "facility": "ZERO BASE villa",
       "frequent": false,
-      "file": null,
-      "active": false
+      "file": "stories/media/PB9scLVbRxrp0B0y.mp4",
+      "active": true
     },
     {
       "id": "PBYtgDy5C6KXgxYz",
@@ -142,8 +141,8 @@
       "title": "ZERO base villa",
       "facility": "ZERO BASE villa",
       "frequent": false,
-      "file": null,
-      "active": false
+      "file": "stories/media/PBYtgDy5C6KXgxYz.mp4",
+      "active": true
     },
     {
       "id": "PBg9N7ydgTb3Pxgd",
@@ -151,8 +150,8 @@
       "title": "ZERO base villa",
       "facility": "ZERO BASE villa",
       "frequent": false,
-      "file": null,
-      "active": false
+      "file": "stories/media/PBg9N7ydgTb3Pxgd.mp4",
+      "active": true
     },
     {
       "id": "PB7nnfVtKkPkRxGz",
@@ -160,8 +159,8 @@
       "title": "ZERO base villa",
       "facility": "ZERO BASE villa",
       "frequent": false,
-      "file": null,
-      "active": false
+      "file": "stories/media/PB7nnfVtKkPkRxGz.mp4",
+      "active": true
     },
     {
       "id": "PBX07l1QTqxSfPBN",
@@ -169,8 +168,8 @@
       "title": "TSUSHIMA",
       "facility": "Archipelago TSUSHIMA",
       "frequent": false,
-      "file": null,
-      "active": false
+      "file": "stories/media/PBX07l1QTqxSfPBN.mp4",
+      "active": true
     },
     {
       "id": "PBxBmcnz2dTd8HkV",
@@ -178,8 +177,8 @@
       "title": "TSUSHIMA",
       "facility": "Archipelago TSUSHIMA",
       "frequent": false,
-      "file": null,
-      "active": false
+      "file": "stories/media/PBxBmcnz2dTd8HkV.mp4",
+      "active": true
     },
     {
       "id": "PBnWqF9vpc2d0Tqs",
@@ -200,16 +199,16 @@
       "active": false
     },
     {
-      "id": "PBCgKxq2Qg7WK99n",
+      "id": "PBB547fmC3XX6gpR",
       "page_no": 23,
       "title": "TSUSHIMA",
       "facility": "Archipelago TSUSHIMA",
       "frequent": false,
-      "file": null,
-      "active": false
+      "file": "stories/media/PBB547fmC3XX6gpR.mp4",
+      "active": true
     },
     {
-      "id": "PBB547fmC3XX6gpR",
+      "id": "PBMdnS7XB3kbx5Vk",
       "page_no": 24,
       "title": "TSUSHIMA",
       "facility": "Archipelago TSUSHIMA",
@@ -218,22 +217,22 @@
       "active": false
     },
     {
-      "id": "PBMdnS7XB3kbx5Vk",
+      "id": "PBkjfsBjtNZlYk23",
       "page_no": 25,
       "title": "TSUSHIMA",
       "facility": "Archipelago TSUSHIMA",
       "frequent": false,
-      "file": null,
-      "active": false
+      "file": "stories/media/PBkjfsBjtNZlYk23.mp4",
+      "active": true
     },
     {
-      "id": "PBkjfsBjtNZlYk23",
+      "id": "PBKtq2xlrn1lBpXc",
       "page_no": 26,
       "title": "TSUSHIMA",
       "facility": "Archipelago TSUSHIMA",
       "frequent": false,
-      "file": null,
-      "active": false
+      "file": "stories/media/PBKtq2xlrn1lBpXc.mp4",
+      "active": true
     },
     {
       "id": "PB47tvv2F9h1hmH5",
@@ -250,8 +249,8 @@
       "title": "TSUSHIMA",
       "facility": "Archipelago TSUSHIMA",
       "frequent": false,
-      "file": null,
-      "active": false
+      "file": "stories/media/PBtBd3vTP8h1FGFP.mp4",
+      "active": true
     },
     {
       "id": "PB2tV6cDbsxf28vV",
@@ -259,75 +258,30 @@
       "title": "ARIAKE106",
       "facility": "ARIAKE palm tree house",
       "frequent": false,
-      "file": null,
-      "active": false
+      "file": "stories/media/PB2tV6cDbsxf28vV.mp4",
+      "active": true
     },
     {
-      "id": "PBwJBWmqnwD09QR7",
+      "id": "PB8YhDC2WGBtLFkX",
       "page_no": 30,
       "title": "ARIAKE106",
       "facility": "ARIAKE palm tree house",
       "frequent": false,
-      "file": null,
-      "active": false
-    },
-    {
-      "id": "PBNJGzLd58jLPVgp",
-      "page_no": 31,
-      "title": "ARIAKE106",
-      "facility": "ARIAKE palm tree house",
-      "frequent": false,
-      "file": null,
-      "active": false
-    },
-    {
-      "id": "PBN0TdhRnYPnpMCq",
-      "page_no": 32,
-      "title": "ARIAKE106",
-      "facility": "ARIAKE palm tree house",
-      "frequent": false,
-      "file": null,
-      "active": false
-    },
-    {
-      "id": "PBkH2ZC3K7WsnLMR",
-      "page_no": 33,
-      "title": "ARIAKE106",
-      "facility": "ARIAKE palm tree house",
-      "frequent": false,
-      "file": null,
-      "active": false
-    },
-    {
-      "id": "PBCc4q2ylWclFftk",
-      "page_no": 34,
-      "title": "ARIAKE106",
-      "facility": "ARIAKE palm tree house",
-      "frequent": false,
-      "file": null,
-      "active": false
-    },
-    {
-      "id": "PB8YhDC2WGBtLFkX",
-      "page_no": 35,
-      "title": "ARIAKE106",
-      "facility": "ARIAKE palm tree house",
-      "frequent": false,
-      "file": null,
-      "active": false
+      "file": "stories/media/PB8YhDC2WGBtLFkX.mp4",
+      "active": true
     },
     {
       "id": "PBzR3XKC5HVzTBHY",
-      "page_no": 36,
+      "page_no": 31,
       "title": "積凪MOKURASU棟",
       "facility": "積凪MOKURASU棟",
       "frequent": false,
-      "file": null,
-      "active": false
+      "file": "stories/media/PBzR3XKC5HVzTBHY.mp4",
+      "active": true
     },
     {
       "id": "PBFpzKf5KVGl4dbs",
-      "page_no": 37,
+      "page_no": 32,
       "title": "TSUSHIMA",
       "facility": "Archipelago TSUSHIMA",
       "frequent": false,
@@ -336,7 +290,7 @@
     },
     {
       "id": "PBNcGK2JnPw3s3Dh",
-      "page_no": 38,
+      "page_no": 33,
       "title": "積凪MOKURASU棟",
       "facility": "積凪MOKURASU棟",
       "frequent": false,
@@ -345,12 +299,72 @@
     },
     {
       "id": "PBBbcJy7SxvjNRjL",
-      "page_no": 39,
+      "page_no": 34,
       "title": "ARIAKE106",
       "facility": "ARIAKE palm tree house",
       "frequent": false,
       "file": null,
       "active": false
+    },
+    {
+      "id": "PBCgKxq2Qg7WK99n",
+      "page_no": 23,
+      "title": "TSUSHIMA",
+      "facility": "Archipelago TSUSHIMA",
+      "frequent": false,
+      "file": null,
+      "active": false,
+      "removed_from_canva": true
+    },
+    {
+      "id": "PBwJBWmqnwD09QR7",
+      "page_no": 30,
+      "title": "ARIAKE106",
+      "facility": "ARIAKE palm tree house",
+      "frequent": false,
+      "file": null,
+      "active": false,
+      "removed_from_canva": true
+    },
+    {
+      "id": "PBNJGzLd58jLPVgp",
+      "page_no": 31,
+      "title": "ARIAKE106",
+      "facility": "ARIAKE palm tree house",
+      "frequent": false,
+      "file": null,
+      "active": false,
+      "removed_from_canva": true
+    },
+    {
+      "id": "PBN0TdhRnYPnpMCq",
+      "page_no": 32,
+      "title": "ARIAKE106",
+      "facility": "ARIAKE palm tree house",
+      "frequent": false,
+      "file": null,
+      "active": false,
+      "removed_from_canva": true
+    },
+    {
+      "id": "PBkH2ZC3K7WsnLMR",
+      "page_no": 33,
+      "title": "ARIAKE106",
+      "facility": "ARIAKE palm tree house",
+      "frequent": false,
+      "file": null,
+      "active": false,
+      "removed_from_canva": true
+    },
+    {
+      "id": "PBCc4q2ylWclFftk",
+      "page_no": 34,
+      "title": "ARIAKE106",
+      "facility": "ARIAKE palm tree house",
+      "frequent": false,
+      "file": null,
+      "active": false,
+      "removed_from_canva": true
     }
   ]
 }
