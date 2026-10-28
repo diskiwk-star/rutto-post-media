@@ -1,1 +1,17 @@
-{}
+{
+  "daily": {
+    "facilities_used": [
+      "積凪KITAKEN棟"
+    ],
+    "last_facility": "積凪KITAKEN棟",
+    "pages_used": {
+      "積凪KITAKEN棟": [
+        "PBnpZQhjS3tLvp8w"
+      ]
+    },
+    "last_page_by_facility": {
+      "積凪KITAKEN棟": "PBnpZQhjS3tLvp8w"
+    }
+  },
+  "frequent": {}
+}
