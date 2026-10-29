@@ -1,16 +1,21 @@
 {
   "daily": {
     "facilities_used": [
+      "ARIAKE palm tree house",
       "積凪KITAKEN棟"
     ],
-    "last_facility": "積凪KITAKEN棟",
+    "last_facility": "ARIAKE palm tree house",
     "pages_used": {
       "積凪KITAKEN棟": [
         "PBnpZQhjS3tLvp8w"
+      ],
+      "ARIAKE palm tree house": [
+        "PBBbcJy7SxvjNRjL"
       ]
     },
     "last_page_by_facility": {
-      "積凪KITAKEN棟": "PBnpZQhjS3tLvp8w"
+      "積凪KITAKEN棟": "PBnpZQhjS3tLvp8w",
+      "ARIAKE palm tree house": "PBBbcJy7SxvjNRjL"
     }
   },
   "frequent": {
