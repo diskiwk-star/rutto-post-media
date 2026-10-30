@@ -124,5 +124,14 @@
     "page_no": 2,
     "facility": null,
     "posted_at": "2026-10-30T10:00:37.251825+09:00"
+  },
+  {
+    "date": "2026-10-30",
+    "slot": "pm",
+    "kind": "daily",
+    "id": "PBd4xHX9D0rGHfPH",
+    "page_no": 7,
+    "facility": "積凪（共通）",
+    "posted_at": "2026-10-30T20:03:13.784689+09:00"
   }
 ]
