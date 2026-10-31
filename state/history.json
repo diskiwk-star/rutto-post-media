@@ -142,5 +142,14 @@
     "page_no": 27,
     "facility": "Archipelago TSUSHIMA",
     "posted_at": "2026-10-31T10:00:38.414839+09:00"
+  },
+  {
+    "date": "2026-10-31",
+    "slot": "pm",
+    "kind": "frequent",
+    "id": "PBky40ZKydYPB6d7",
+    "page_no": 5,
+    "facility": null,
+    "posted_at": "2026-10-31T19:37:43.816387+09:00"
   }
 ]
