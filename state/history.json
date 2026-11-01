@@ -160,5 +160,14 @@
     "page_no": 1,
     "facility": null,
     "posted_at": "2026-11-01T10:00:37.331593+09:00"
+  },
+  {
+    "date": "2026-11-01",
+    "slot": "pm",
+    "kind": "daily",
+    "id": "PBzR3XKC5HVzTBHY",
+    "page_no": 31,
+    "facility": "積凪MOKURASU棟",
+    "posted_at": "2026-11-01T20:30:56.504812+09:00"
   }
 ]
