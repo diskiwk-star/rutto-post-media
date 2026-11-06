@@ -241,5 +241,14 @@
     "page_no": 29,
     "facility": "ARIAKE palm tree house",
     "posted_at": "2026-11-05T21:46:30.677025+09:00"
+  },
+  {
+    "date": "2026-11-06",
+    "slot": "am",
+    "kind": "daily",
+    "id": "PBg9N7ydgTb3Pxgd",
+    "page_no": 17,
+    "facility": "ZERO BASE villa",
+    "posted_at": "2026-11-06T10:00:37.529037+09:00"
   }
 ]
