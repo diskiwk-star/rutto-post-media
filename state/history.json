@@ -250,5 +250,14 @@
     "page_no": 17,
     "facility": "ZERO BASE villa",
     "posted_at": "2026-11-06T10:00:37.529037+09:00"
+  },
+  {
+    "date": "2026-11-06",
+    "slot": "pm",
+    "kind": "frequent",
+    "id": "PBr3C3XVd6N1xbbX",
+    "page_no": 3,
+    "facility": null,
+    "posted_at": "2026-11-06T21:30:40.277266+09:00"
   }
 ]
