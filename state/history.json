@@ -259,5 +259,14 @@
     "page_no": 3,
     "facility": null,
     "posted_at": "2026-11-06T21:30:40.277266+09:00"
+  },
+  {
+    "date": "2026-11-07",
+    "slot": "am",
+    "kind": "daily",
+    "id": "PB2543RQ7dwv6DTg",
+    "page_no": 11,
+    "facility": "積凪（共通）",
+    "posted_at": "2026-11-07T10:00:37.803768+09:00"
   }
 ]
