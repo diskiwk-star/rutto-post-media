@@ -1,9 +1,10 @@
 {
   "daily": {
     "facilities_used": [
-      "ARIAKE palm tree house"
+      "ARIAKE palm tree house",
+      "積凪MOKURASU棟"
     ],
-    "last_facility": "ARIAKE palm tree house",
+    "last_facility": "積凪MOKURASU棟",
     "pages_used": {
       "積凪KITAKEN棟": [
         "PBmP54JsGlN16ybN",
@@ -23,7 +24,6 @@
         "PBkjfsBjtNZlYk23"
       ],
       "積凪MOKURASU棟": [
-        "PBNcGK2JnPw3s3Dh",
         "PBzR3XKC5HVzTBHY"
       ],
       "ZERO BASE villa": [
@@ -36,7 +36,7 @@
       "ARIAKE palm tree house": "PB8YhDC2WGBtLFkX",
       "積凪（共通）": "PB2543RQ7dwv6DTg",
       "Archipelago TSUSHIMA": "PBkjfsBjtNZlYk23",
-      "積凪MOKURASU棟": "PBNcGK2JnPw3s3Dh",
+      "積凪MOKURASU棟": "PBzR3XKC5HVzTBHY",
       "ZERO BASE villa": "PBg9N7ydgTb3Pxgd"
     }
   },
