@@ -376,5 +376,14 @@
     "page_no": 10,
     "facility": "積凪KITAKEN棟",
     "posted_at": "2026-11-13T10:00:38.986403+09:00"
+  },
+  {
+    "date": "2026-11-13",
+    "slot": "pm",
+    "kind": "frequent",
+    "id": "PBr3C3XVd6N1xbbX",
+    "page_no": 3,
+    "facility": null,
+    "posted_at": "2026-11-13T21:39:43.438896+09:00"
   }
 ]
