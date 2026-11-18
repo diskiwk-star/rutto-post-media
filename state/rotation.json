@@ -1,11 +1,12 @@
 {
   "daily": {
     "facilities_used": [
+      "ARIAKE palm tree house",
       "Archipelago TSUSHIMA",
       "積凪KITAKEN棟",
       "積凪（共通）"
     ],
-    "last_facility": "積凪（共通）",
+    "last_facility": "ARIAKE palm tree house",
     "pages_used": {
       "積凪KITAKEN棟": [
         "PB5Dhl3BCgz9sZlx",
@@ -14,8 +15,6 @@
         "PBnpZQhjS3tLvp8w"
       ],
       "ARIAKE palm tree house": [
-        "PB2tV6cDbsxf28vV",
-        "PB8YhDC2WGBtLFkX",
         "PBBbcJy7SxvjNRjL"
       ],
       "積凪（共通）": [
@@ -39,7 +38,7 @@
     },
     "last_page_by_facility": {
       "積凪KITAKEN棟": "PB69wkJ2qbPNtDJ8",
-      "ARIAKE palm tree house": "PB8YhDC2WGBtLFkX",
+      "ARIAKE palm tree house": "PBBbcJy7SxvjNRjL",
       "積凪（共通）": "PB2543RQ7dwv6DTg",
       "Archipelago TSUSHIMA": "PBnWqF9vpc2d0Tqs",
       "積凪MOKURASU棟": "PBzR3XKC5HVzTBHY",
