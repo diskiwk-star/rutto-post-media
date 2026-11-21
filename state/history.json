@@ -520,5 +520,14 @@
     "page_no": 7,
     "facility": "積凪（共通）",
     "posted_at": "2026-11-21T10:00:52.868575+09:00"
+  },
+  {
+    "date": "2026-11-21",
+    "slot": "pm",
+    "kind": "frequent",
+    "id": "PBky40ZKydYPB6d7",
+    "page_no": 5,
+    "facility": null,
+    "posted_at": "2026-11-21T22:02:49.643517+09:00"
   }
 ]
