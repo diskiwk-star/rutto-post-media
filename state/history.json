@@ -538,5 +538,14 @@
     "page_no": 4,
     "facility": null,
     "posted_at": "2026-11-22T10:00:36.734786+09:00"
+  },
+  {
+    "date": "2026-11-22",
+    "slot": "pm",
+    "kind": "daily",
+    "id": "PBM9lmlBzRsS6bsj",
+    "page_no": 8,
+    "facility": "積凪KITAKEN棟",
+    "posted_at": "2026-11-22T21:54:17.390120+09:00"
   }
 ]
